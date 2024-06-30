@@ -8,7 +8,7 @@ const KidsNumberKeyboard = () => {
   const [message, setMessage] = useState('');
   const [score, setScore] = useState(0);
   const [celebration, setCelebration] = useState(false);
-  const [audioElements, setAudioElements] = useState({});
+  const [audioElements, setAudioElements] = useState<{ [key: string]: HTMLAudioElement }>({});
 
   const generateQuestion = useCallback(() => {
     const operation = Math.random() < 0.5 ? '+' : '-';
@@ -37,7 +37,7 @@ const KidsNumberKeyboard = () => {
   }, [generateQuestion]);
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key >= '0' && event.key <= '9') {
         handleInput(event.key);
       }
@@ -49,19 +49,19 @@ const KidsNumberKeyboard = () => {
     };
   }, []);
 
-  const playSound = (sound) => {
+  const playSound = (sound: string) => {
     if (audioElements[sound]) {
       audioElements[sound].currentTime = 0;
       audioElements[sound].play().catch(e => console.error("Error playing sound:", e));
     }
   };
 
-  const handleInput = (num) => {
+  const handleInput = (num: string) => {
     playSound('buttonSound');
     setCurrentNumber(prevNumber => prevNumber + num);
   };
 
-  const checkAnswer = useCallback((inputAnswer) => {
+  const checkAnswer = useCallback((inputAnswer: string) => {
     console.log('Input Answer:', inputAnswer, 'Correct Answer:', answer);
     if (inputAnswer.trim() === answer.trim()) {
       playSound('correctSound');
