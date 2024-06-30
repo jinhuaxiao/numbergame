@@ -91,7 +91,7 @@ const KidsNumberKeyboard = () => {
     <button
       key={i}
       onClick={() => handleInput(i.toString())}
-      className={`w-16 h-16 m-2 text-2xl font-bold rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-opacity-50 ${
+      className={`w-12 h-12 sm:w-16 sm:h-16 m-1 sm:m-2 text-xl sm:text-2xl font-bold rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-opacity-50 ${
         celebration ? 'animate-bounce' : ''
       }`}
       style={{
@@ -104,29 +104,29 @@ const KidsNumberKeyboard = () => {
   ));
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400">
-      <h1 className="text-4xl font-bold mb-8 text-white shadow-text animate-pulse">趣味数字游戏</h1>
-      <div className="bg-white p-8 rounded-lg shadow-xl relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 p-4 sm:p-8">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-white shadow-text animate-pulse">趣味数字游戏</h1>
+      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl relative overflow-hidden w-full max-w-lg">
         {celebration && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-6xl animate-spin text-yellow-400">
+            <div className="text-5xl sm:text-6xl animate-spin text-yellow-400">
               <Star />
             </div>
           </div>
         )}
-        <div className="text-3xl font-bold mb-4 text-center">{question}</div>
-        <div className={`text-xl mb-4 text-center transition-all duration-300 ${message ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center">{question}</div>
+        <div className={`text-lg sm:text-xl mb-3 sm:mb-4 text-center transition-all duration-300 ${message ? 'opacity-100' : 'opacity-0'}`}>
           {message}
         </div>
-        <div className="flex flex-wrap justify-center max-w-md">
+        <div className="flex flex-wrap justify-center max-w-full">
           {numberButtons}
         </div>
-        <div className="mt-6 text-center">
-          <p className="text-xl">你的答案: <span className="font-bold text-2xl">{currentNumber}</span></p>
-          <p className="text-xl mt-2">得分: <span className="font-bold text-2xl animate-pulse">{score}</span></p>
+        <div className="mt-4 sm:mt-6 text-center">
+          <p className="text-lg sm:text-xl">你的答案: <span className="font-bold text-xl sm:text-2xl">{currentNumber}</span></p>
+          <p className="text-lg sm:text-xl mt-2">得分: <span className="font-bold text-xl sm:text-2xl animate-pulse">{score}</span></p>
         </div>
       </div>
-      <div className="mt-8 flex items-center text-white">
+      <div className="mt-6 sm:mt-8 flex items-center text-white">
         <Keyboard className="mr-2 animate-bounce" />
         <span>使用键盘数字键也可以哦！</span>
       </div>
