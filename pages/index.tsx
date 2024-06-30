@@ -1,118 +1,137 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Keyboard, Star } from 'lucide-react';
 
-const inter = Inter({ subsets: ["latin"] });
+const KidsNumberKeyboard = () => {
+  const [currentNumber, setCurrentNumber] = useState('');
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [message, setMessage] = useState('');
+  const [score, setScore] = useState(0);
+  const [celebration, setCelebration] = useState(false);
+  const [audioElements, setAudioElements] = useState({});
 
-export default function Home() {
-  return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+  const generateQuestion = useCallback(() => {
+    const operation = Math.random() < 0.5 ? '+' : '-';
+    let a, b;
+    if (operation === '+') {
+      a = Math.floor(Math.random() * 5) + 1;
+      b = Math.floor(Math.random() * (10 - a)) + 1;
+    } else {
+      a = Math.floor(Math.random() * 10) + 1;
+      b = Math.floor(Math.random() * a) + 1;
+    }
+    setQuestion(`${a} ${operation} ${b} = ?`);
+    setAnswer((operation === '+' ? a + b : a - b).toString());
+    setCurrentNumber('');
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setAudioElements({
+        correctSound: new Audio('/audio/correct.mp3'),
+        incorrectSound: new Audio('/audio/incorrect.mp3'),
+        buttonSound: new Audio('/audio/button.mp3')
+      });
+    }
+    generateQuestion();
+  }, [generateQuestion]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key >= '0' && event.key <= '9') {
+        handleInput(event.key);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const playSound = (sound) => {
+    if (audioElements[sound]) {
+      audioElements[sound].currentTime = 0;
+      audioElements[sound].play().catch(e => console.error("Error playing sound:", e));
+    }
+  };
+
+  const handleInput = (num) => {
+    playSound('buttonSound');
+    setCurrentNumber(prevNumber => prevNumber + num);
+  };
+
+  const checkAnswer = useCallback((inputAnswer) => {
+    console.log('Input Answer:', inputAnswer, 'Correct Answer:', answer);
+    if (inputAnswer.trim() === answer.trim()) {
+      playSound('correctSound');
+      setMessage('太棒了！回答正确！');
+      setScore(prevScore => prevScore + 1);
+      setCelebration(true);
+      setTimeout(() => {
+        setCelebration(false);
+        setMessage('');
+        generateQuestion();
+      }, 2000);
+    } else if (inputAnswer.length >= answer.length) {
+      playSound('incorrectSound');
+      setMessage('再试一次！');
+      setTimeout(() => {
+        setCurrentNumber('');
+        setMessage('');
+      }, 1000);
+    }
+  }, [answer, generateQuestion, playSound]);
+
+  useEffect(() => {
+    checkAnswer(currentNumber);
+  }, [currentNumber, checkAnswer]);
+
+  const numberButtons = Array.from({ length: 10 }, (_, i) => (
+    <button
+      key={i}
+      onClick={() => handleInput(i.toString())}
+      className={`w-16 h-16 m-2 text-2xl font-bold rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-opacity-50 ${
+        celebration ? 'animate-bounce' : ''
+      }`}
+      style={{
+        backgroundColor: `hsl(${i * 36}, 70%, 50%)`,
+        color: i > 5 ? 'white' : 'black',
+      }}
     >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+      {i}
+    </button>
+  ));
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400">
+      <h1 className="text-4xl font-bold mb-8 text-white shadow-text animate-pulse">趣味数字游戏</h1>
+      <div className="bg-white p-8 rounded-lg shadow-xl relative overflow-hidden">
+        {celebration && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-6xl animate-spin text-yellow-400">
+              <Star />
+            </div>
+          </div>
+        )}
+        <div className="text-3xl font-bold mb-4 text-center">{question}</div>
+        <div className={`text-xl mb-4 text-center transition-all duration-300 ${message ? 'opacity-100' : 'opacity-0'}`}>
+          {message}
+        </div>
+        <div className="flex flex-wrap justify-center max-w-md">
+          {numberButtons}
+        </div>
+        <div className="mt-6 text-center">
+          <p className="text-xl">你的答案: <span className="font-bold text-2xl">{currentNumber}</span></p>
+          <p className="text-xl mt-2">得分: <span className="font-bold text-2xl animate-pulse">{score}</span></p>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="mt-8 flex items-center text-white">
+        <Keyboard className="mr-2 animate-bounce" />
+        <span>使用键盘数字键也可以哦！</span>
       </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default KidsNumberKeyboard;
