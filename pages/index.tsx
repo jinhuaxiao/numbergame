@@ -62,7 +62,6 @@ const KidsNumberKeyboard = () => {
   };
 
   const checkAnswer = useCallback((inputAnswer: string) => {
-    console.log('Input Answer:', inputAnswer, 'Correct Answer:', answer);
     if (inputAnswer.trim() === answer.trim()) {
       playSound('correctSound');
       setMessage('太棒了！回答正确！');
@@ -104,9 +103,9 @@ const KidsNumberKeyboard = () => {
   ));
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 p-4 sm:p-8">
-      <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-white shadow-text animate-pulse">趣味数字游戏</h1>
-      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl relative overflow-hidden w-full max-w-lg">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 p-4">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 text-white shadow-text animate-pulse">趣味数字游戏</h1>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl relative overflow-hidden w-full max-w-md">
         {celebration && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-5xl sm:text-6xl animate-spin text-yellow-400">
@@ -114,21 +113,21 @@ const KidsNumberKeyboard = () => {
             </div>
           </div>
         )}
-        <div className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center">{question}</div>
-        <div className={`text-lg sm:text-xl mb-3 sm:mb-4 text-center transition-all duration-300 ${message ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="text-2xl sm:text-3xl font-bold mb-3 text-center">{question}</div>
+        <div className={`text-lg sm:text-xl mb-3 text-center transition-all duration-300 h-6 ${message ? 'opacity-100' : 'opacity-0'}`}>
           {message}
         </div>
-        <div className="flex flex-wrap justify-center max-w-full">
+        <div className="flex flex-wrap justify-center">
           {numberButtons}
         </div>
-        <div className="mt-4 sm:mt-6 text-center">
+        <div className="mt-4 text-center">
           <p className="text-lg sm:text-xl">你的答案: <span className="font-bold text-xl sm:text-2xl">{currentNumber}</span></p>
           <p className="text-lg sm:text-xl mt-2">得分: <span className="font-bold text-xl sm:text-2xl animate-pulse">{score}</span></p>
         </div>
       </div>
-      <div className="mt-6 sm:mt-8 flex items-center text-white">
+      <div className="mt-4 sm:mt-6 flex items-center text-white">
         <Keyboard className="mr-2 animate-bounce" />
-        <span>使用键盘数字键也可以哦！</span>
+        <span className="text-sm sm:text-base">使用键盘数字键也可以哦！</span>
       </div>
     </div>
   );
